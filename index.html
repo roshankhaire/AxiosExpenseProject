@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form onsubmit="saveToCrudCrud(event)">
+        <label for="expenseAmount">Choose Expense Amount:</label>
+        <input id="amount" type="amout" name="amounts">
+        <label for="discription">Choose Discription:</label>
+        <input  id="discription"type="text" name="discription">
+        <label for="category">Choose Categoty:</label>
+        <select id="category" name="category">
+            <option value="fuel">Fuel</option>
+            <option value="vacation">Vacation</option>
+            <option value="shopping">Shopping</option>
+        </select>
+        <button>Add Expense</button>
+    </form>
+    <ul id="listOfExpenses"></ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
+    <script type="text/javascript">
+        function saveToCrudCrud(event){
+            event.preventDefault();
+            const expenseAmount=event.target.amounts.value;
+            const expenseDiscription=event.target.discription.value;
+            const expenseCategory=event.target.category.value;
+            let expenseObj={
+                expenseAmount,
+                expenseDiscription,
+                expenseCategory
+            }
+             axios.post("https://crudcrud.com/api/4c37fe6fd36d48b9a50d1f0fa6b6e65f/expenseData",expenseObj)
+             .then((response)=>{
+                //console.log(response);
+                showExpenseOnScreen(expenseObj)
+             })
+             .catch((err)=>{
+                console.log(err);
+             })
+            
+        }
+        function showExpenseOnScreen(expenseObj){
+              //console.log(expenseObj)
+              const parentNode=document.getElementById("listOfExpenses")
+              //console.log(parentNode)
+              const childNode=`<li id="list">${expenseObj.expenseAmount}
+                -${expenseObj.expenseDiscription}-${expenseObj.expenseCategory}
+                <button onclick=deleteFromCrudCrudAndScreen('${expenseObj._id}')>Delete Expenses</button>
+                <button onclick=editExpenses('${expenseObj._id}','${expenseObj.expenseAmount}','${expenseObj.expenseDiscription}','${expenseObj.expenseCategory}')>Edit Expenses</button></li>`
+                //console.log(childNode);
+                parentNode.innerHTML=parentNode.innerHTML+childNode;
+
+        }
+         window.addEventListener("DOMContentLoaded",()=>{
+            axios.get("https://crudcrud.com/api/4c37fe6fd36d48b9a50d1f0fa6b6e65f/expenseData")
+            .then((response)=>{
+                //console.log(response);
+                for(let i=0;i<response.data.length;i++){
+                    showExpenseOnScreen(response.data[i])
+                }
+              
+            })
+            .catch((err)=>{
+                console.log("err");
+            })
+         })
+         function deleteFromCrudCrudAndScreen(idToBeDeleted){
+            //console.log(idToBeDeleted)
+            axios.delete(`https://crudcrud.com/api/4c37fe6fd36d48b9a50d1f0fa6b6e65f/expenseData/${idToBeDeleted}`)
+            .then((response)=>{
+                deleteFromSceen(idToBeDeleted)
+            })
+         }
+         function deleteFromSceen(idToBeDeleted){
+            const parentNode=document.getElementById("listOfExpenses")
+            //console.log(parentNode)
+            const childNode=document.getElementById("list")
+           // console.log(childNode)
+           parentNode.removeChild(childNode)
+         }
+         function editExpenses(idToBeDeleted,expsAmount,expsDiscription,expsCategoty){
+            //console.log(idToBeDeleted)
+            //console.log(expsAmount)
+            //console.log(expsDiscription)
+            //console.log(expsCategoty)
+            deleteFromCrudCrudAndScreen(idToBeDeleted)
+            document.getElementById("amount").value=expsAmount;
+            document.getElementById("discription").value=expsDiscription;
+            document.getElementById("category").value=expsCategoty
+         }
+    </script>
+</body>
+</html>
